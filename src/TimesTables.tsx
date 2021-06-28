@@ -98,7 +98,6 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
     return null;
   }
 
-  console.log("render");
   return (
     <Box width="100%">
       <h4>Você está fazendo: Tabuada do {base}</h4>
