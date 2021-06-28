@@ -9,6 +9,10 @@
   ],
   "main": "src/index.tsx",
   "dependencies": {
+    "@material-ui/core": "4.11.4",
+    "@material-ui/styles": "4.11.4",
+    "@material-ui/utils": "4.11.2",
+    "@types/material-ui": "0.21.8",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "7.9.0",

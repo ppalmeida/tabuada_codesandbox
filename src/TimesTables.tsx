@@ -1,5 +1,9 @@
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography/Typography";
+import TextField from "@material-ui/core/TextField";
 import React, { FC, useCallback, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import TimesTableRow, {
   DIRECT_MATH,
   Question,
@@ -13,7 +17,7 @@ const generateTimeTablesData = (base: number, index = 0): Question => {
 
   const rndDirection = Math.random();
   let direction = DIRECT_MATH;
-  if (rndDirection > 0.4 && rndDirection <= 0.9) {
+  if (rndDirection > 0.7 && rndDirection <= 0.9) {
     direction = RESULT_OVER_BASE;
   }
   if (rndDirection > 0.9) {
@@ -54,7 +58,8 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
     register,
     handleSubmit,
     formState: { errors, isSubmitted },
-    setError
+    setError,
+    control
   } = useForm({
     mode: "onSubmit",
     shouldUseNativeValidation: false,
@@ -105,37 +110,50 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
   }
 
   return (
-    <div>
+    <Box width="100%">
       <h4>Você está fazendo: Tabuada do {base}</h4>
-      <form
-        style={{ maxWidth: "90vw", display: "block" }}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <table>
-          <thead></thead>
-          <tbody>
-            {allData.map((field, index) => {
-              return (
-                <TimesTableRow
-                  error={errors[field.id]}
-                  {...allData[index]}
-                  key={field.id}
-                >
-                  <input
-                    data-result={field.result}
-                    type="number"
-                    defaultValue=""
-                    {...register(`${field.id}` as const, {
-                      required: false
-                    })}
-                    disabled={isSubmitted && Boolean(errors[field.id])}
-                  />
-                </TimesTableRow>
-              );
-            })}
-          </tbody>
-        </table>
-        <button type="submit">Verificar</button>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Box display="flex" flexDirection="column" width="100%">
+          {allData.map((field, index) => {
+            return (
+              <TimesTableRow
+                error={errors[field.id]}
+                {...allData[index]}
+                key={field.id}
+              >
+                <Controller
+                  render={({
+                    field: { onChange, onBlur, value, name, ref },
+                    fieldState: { invalid, isTouched, isDirty, error }
+                  }) => {
+                    return (
+                      <TextField
+                        value={value}
+                        type="number"
+                        defaultValue=""
+                        disabled={isSubmitted && invalid}
+                        placeholder="Digite sua resposta"
+                        label={null}
+                        onChange={onChange}
+                        variant="outlined"
+                        error={invalid}
+                        inputRef={ref} // wire up the input ref
+                        helperText={invalid ? error?.message : null}
+                        name={name}
+                        fullWidth
+                      />
+                    );
+                  }}
+                  name={`${field.id}` as const}
+                  control={control}
+                />
+              </TimesTableRow>
+            );
+          })}
+        </Box>
+        <Button color="primary" variant="contained" type="submit">
+          Verificar
+        </Button>
         {isSubmitted && (
           <div>
             <h5>Você acertou {correctAnswers} questões</h5>
@@ -152,9 +170,12 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
           </div>
         )}
       </form>
-      <br />
-      <button onClick={resetCache}>Resetar Questões</button>
-    </div>
+      <Box display="flex" marginTop="16px">
+        <Button variant="outlined" onClick={resetCache}>
+          Resetar Questões
+        </Button>
+      </Box>
+    </Box>
   );
 };
 
