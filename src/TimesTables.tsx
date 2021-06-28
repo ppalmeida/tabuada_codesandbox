@@ -89,26 +89,16 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
 
   const onSubmit = useCallback(
     (data) => {
-      let countErrors = 0;
-      Object.keys(data).forEach((field) => {
-        const correctAnswer = allData.find((d) => d.id === field);
-        if (data[field] !== correctAnswer?.answer.toString()) {
-          setError(`${field}` as const, {
-            type: "manual",
-            message: `Resultado inválido! Resposta correta seria: ${correctAnswer?.answer}`
-          });
-          countErrors++;
-        }
-      });
-      updateCorrectAnswers(numQuestions - countErrors);
+      updateCorrectAnswers(numQuestions - Object.keys(errors).length);
     },
-    [allData, setError, numQuestions]
+    [numQuestions, errors]
   );
 
   if (allData.length === 0) {
     return null;
   }
 
+  console.log("render");
   return (
     <Box width="100%">
       <h4>Você está fazendo: Tabuada do {base}</h4>
@@ -146,6 +136,12 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
                   }}
                   name={`${field.id}` as const}
                   control={control}
+                  rules={{
+                    validate: (value) =>
+                      value !== field.answer.toString()
+                        ? `Errou! Valor correto: ${field.answer}`
+                        : undefined
+                  }}
                 />
               </TimesTableRow>
             );
