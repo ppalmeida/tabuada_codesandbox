@@ -1,8 +1,8 @@
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography/Typography";
 import TextField from "@material-ui/core/TextField";
-import React, { FC, useCallback, useMemo, useState } from "react";
+import Typography from "@material-ui/core/Typography";
+import React, { FC, useCallback, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import TimesTableRow, {
   DIRECT_MATH,
@@ -53,12 +53,9 @@ export interface TimesTableProps {
 }
 
 const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
-  const [correctAnswers, updateCorrectAnswers] = useState(0);
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitted },
-    setError,
     control
   } = useForm({
     mode: "onSubmit",
@@ -87,12 +84,9 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
     return data;
   }, [base, cacheKey, numQuestions]);
 
-  const onSubmit = useCallback(
-    (data) => {
-      updateCorrectAnswers(numQuestions - Object.keys(errors).length);
-    },
-    [numQuestions, errors]
-  );
+  const correctAnswers = numQuestions - Object.keys(errors).length;
+
+  const onSubmit = useCallback((data) => {}, [numQuestions, errors]);
 
   if (allData.length === 0) {
     return null;
@@ -112,23 +106,22 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
               >
                 <Controller
                   render={({
-                    field: { onChange, onBlur, value, name, ref },
-                    fieldState: { invalid, isTouched, isDirty, error }
+                    field: { onChange, ref, onBlur, name },
+                    fieldState: { invalid, error }
                   }) => {
                     return (
                       <TextField
-                        value={value}
                         type="number"
-                        defaultValue=""
                         disabled={isSubmitted && invalid}
                         placeholder="Digite sua resposta"
                         label={null}
                         onChange={onChange}
+                        onBlur={onBlur}
                         variant="outlined"
                         error={invalid}
-                        inputRef={ref} // wire up the input ref
                         helperText={invalid ? error?.message : null}
                         name={name}
+                        inputRef={ref}
                         fullWidth
                       />
                     );
@@ -138,7 +131,7 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
                   rules={{
                     validate: (value) =>
                       value !== field.answer.toString()
-                        ? `Errou! Valor correto: ${field.answer}`
+                        ? `Ooooppss! Valor correto: ${field.answer}`
                         : undefined
                   }}
                 />
@@ -146,26 +139,53 @@ const TimesTable: FC<TimesTableProps> = ({ base, numQuestions = 50 }) => {
             );
           })}
         </Box>
-        <Button color="primary" variant="contained" type="submit">
-          Verificar
-        </Button>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          marginTop="32px"
+        >
+          <Box width="60%">
+            <Button
+              size="large"
+              color="primary"
+              variant="contained"
+              type="submit"
+              fullWidth
+            >
+              Verificar
+            </Button>
+          </Box>
+        </Box>
         {isSubmitted && (
-          <div>
-            <h5>Você acertou {correctAnswers} questões</h5>
-            <p>
-              Isso significa uma nota{" "}
-              {Math.round((correctAnswers / numQuestions) * 100) / 10}
-            </p>
+          <Box marginTop="32px">
+            <Typography variant="h4" color="primary" align="center">
+              Você acertou {correctAnswers} questões
+            </Typography>
+            <Typography variant="body1" align="center">
+              Em uma nota de <strong>0 a 10</strong>, isso significa uma nota{" "}
+              <strong>
+                {Math.round((correctAnswers / numQuestions) * 100) / 10}
+              </strong>
+            </Typography>
             {correctAnswers === numQuestions && (
-              <h3>
-                Você pode se candidatar e ganhar 5 Euros!!! Fale com seu gestor
-                e participe do Desafio dos 5 Euros!!
-              </h3>
+              <Box marginTop="32px">
+                <Typography variant="h5" color="primary" align="center">
+                  Você pode se candidatar e ganhar até 20 Euros!!! Fale com seu
+                  gestor e participe do <strong>"Desafio dos 20 Euros"</strong>
+                  !!
+                </Typography>
+              </Box>
             )}
-          </div>
+          </Box>
         )}
       </form>
-      <Box display="flex" marginTop="16px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        marginTop="64px"
+        marginBottom="64px"
+      >
         <Button variant="outlined" onClick={resetCache}>
           Resetar Questões
         </Button>

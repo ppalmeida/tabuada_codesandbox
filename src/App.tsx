@@ -17,7 +17,7 @@ export default function App() {
     >
       <Typography variant="h1">Olá!</Typography>
       <Typography variant="h5">É hora de aprender tabuada!</Typography>
-      <TimesTables base={2} numQuestions={50} />
+      <TimesTables base={2} numQuestions={4} />
     </Box>
   );
 }
